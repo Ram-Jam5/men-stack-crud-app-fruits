@@ -8,6 +8,7 @@ mongoose.connect(process.env.MONGODB_URI);
 mongoose.connection.on("connected", () => {
     console.log(`Connected to Mongo DB ${mongoose.connection.name}.`);
 });
+const Fruit = require("./models/fruit")
 
 // GET /
 app.get("/", async (req, res) => {
