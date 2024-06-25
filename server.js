@@ -39,7 +39,7 @@ app.get('/fruits/:fruitId', async (req, res) => {
   res.render("fruits/show.ejs", { fruit: foundFruit })
 })
 
-
+// GET /fruits/:fruitID
 app.get("/fruits/:fruitId/edit", async (req, res) => {
   const foundFruit = await Fruit.findById(req.params.fruitId);
   res.render("fruits/edit.ejs", {
@@ -48,6 +48,16 @@ app.get("/fruits/:fruitId/edit", async (req, res) => {
 });
 
 
+app.put('/fruits/:fruitId', async (req, res) => {
+  if (req.body.isReadyToEat === "on") {
+    req.body.isReadyToEat = true;
+  } else {
+    req.body.isReadyToEat = false;
+  }
+  await Fruit.findByIdAndUpdate(req.params.fruitId, req.body)
+  res.redirect(`/fruits/${req.params.fruitId}`)
+})
+
 // POST /fruits/new
 app.post("/fruits", async (req, res) => {
     if (req.body.isReadyToEat === "on") {
@@ -55,8 +65,15 @@ app.post("/fruits", async (req, res) => {
     } else {
         req.body.isReadyToEat = false;
     }
-    await Fruit.create(req.body);
-    res.redirect("/fruits");
+    try {
+      if (!req.body.name.trim()) {
+        throw new Error("Invalid input: The name field cannot be empty!");
+      }
+      await Fruit.create(req.body);
+      res.redirect("/fruits");
+    } catch (err) {
+      res.render("fruits/new.ejs", { errorMessage: err.message });
+    }  
 });
 
 app.delete('/fruits/:fruitId', async (req, res) => {
