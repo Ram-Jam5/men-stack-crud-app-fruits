@@ -9,14 +9,15 @@
   </head>
 <body>
     <h1>All Fruits</h1>
-   
+    <% if (typeof message !== 'undefined') { %>
+      <p><%= message %></p>
+      <% } %>
+      
     <ul>
       <% fruits.forEach(fruit => { %>
         <li><a href="/fruits/<%= fruit._id %>"> <%= fruit.name %> </a></li>
       <% }); %>
     </ul>
-    
-
 
     <a href="/fruits/new">Add New Fruit</a>
   </body>

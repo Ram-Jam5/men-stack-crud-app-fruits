@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const methodOverride = require("method-override");
 const morgan = require("morgan")
+const session = require("express-session");
 
 const app = express();
 
@@ -18,6 +19,20 @@ const Fruit = require("./models/fruit.js");
 app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride("_method"));
 app.use(morgan("dev"));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+app.use((req, res, next) => {
+  if (req.session.message) {
+    res.locals.message = req.session.message;
+    res.session.message = null;
+  }
+  next();
+});
 
 // GET /
 app.get("/", async (req, res) => {
@@ -65,15 +80,16 @@ app.post("/fruits", async (req, res) => {
     } else {
         req.body.isReadyToEat = false;
     }
-    try {
-      if (!req.body.name.trim()) {
-        throw new Error("Invalid input: The name field cannot be empty!");
-      }
-      await Fruit.create(req.body);
-      res.redirect("/fruits");
-    } catch (err) {
-      res.render("error.ejs", { msg: err.message });
-    }  
+    // try {
+    await Fruit.create(req.body);
+    req.session.message = "Fruit successfully created.";
+    console.log(req.session)
+    res.redirect("/fruits");
+    
+  // } catch (err) {
+  //   req.session.message = err.message;
+  //   res.redirect("/fruits");
+  // }
 });
 
 app.delete('/fruits/:fruitId', async (req, res) => {
