@@ -72,7 +72,7 @@ app.post("/fruits", async (req, res) => {
       await Fruit.create(req.body);
       res.redirect("/fruits");
     } catch (err) {
-      res.render("fruits/new.ejs", { errorMessage: err.message });
+      res.render("error.ejs", { msg: err.message });
     }  
 });
 
@@ -80,6 +80,10 @@ app.delete('/fruits/:fruitId', async (req, res) => {
   await Fruit.findByIdAndDelete(req.params.fruitId);
   res.redirect("/fruits")
 })
+
+app.get("*", function (req, res) {
+  res.render("error.ejs", { msg: "Page not found!" });
+});
 
 app.listen(3000, () => {
   console.log("Listening on port 3000");
