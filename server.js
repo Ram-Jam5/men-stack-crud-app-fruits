@@ -29,7 +29,7 @@ app.use(
 app.use((req, res, next) => {
   if (req.session.message) {
     res.locals.message = req.session.message;
-    res.session.message = null;
+    req.session.message = null;
   }
   next();
 });
@@ -80,16 +80,15 @@ app.post("/fruits", async (req, res) => {
     } else {
         req.body.isReadyToEat = false;
     }
-    // try {
+    try {
     await Fruit.create(req.body);
     req.session.message = "Fruit successfully created.";
-    console.log(req.session)
     res.redirect("/fruits");
     
-  // } catch (err) {
-  //   req.session.message = err.message;
-  //   res.redirect("/fruits");
-  // }
+  } catch (err) {
+    req.session.message = err.message;
+    res.redirect("/fruits");
+  }
 });
 
 app.delete('/fruits/:fruitId', async (req, res) => {
@@ -98,7 +97,7 @@ app.delete('/fruits/:fruitId', async (req, res) => {
 })
 
 app.get("*", function (req, res) {
-  res.render("error.ejs", { msg: "Page not found!" });
+  res.status(404).render("error.ejs", { msg: "Page not found!" });
 });
 
 app.listen(3000, () => {
