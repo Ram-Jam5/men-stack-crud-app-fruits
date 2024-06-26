@@ -8,6 +8,7 @@ const session = require("express-session");
 
 const app = express();
 
+const port = process.env.PORT ? process.env.PORT : "3000";
 
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.connection.on("connected", () => {
@@ -100,6 +101,14 @@ app.get("*", function (req, res) {
   res.status(404).render("error.ejs", { msg: "Page not found!" });
 });
 
-app.listen(3000, () => {
-  console.log("Listening on port 3000");
-});
+const handleServerError = (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`Warning! Port ${port} is already in use!`);
+  } else {
+    console.log('Error:', err);
+  }
+}
+
+app.listen(port, () => {
+  console.log(`The express app is ready on port ${port}!`);
+}).on('error', handleServerError);
